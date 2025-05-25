@@ -51,9 +51,18 @@ async function run() {
             res.send( result )
         })
 
+        // Delete an item
         app.delete('/Items/:id', async ( req, res ) =>{
             const id = req.params.id;
             const result = await productCollection.deleteOne({ _id: new ObjectId(id) });
+            // console.log(result);
+            res.send( result )
+        })
+
+        // items added by user
+        app.get('/:email/items', async ( req, res ) =>{
+            const email = req.params.email;
+            const result = await productCollection.find({ usersEmail: email }).toArray();
             // console.log(result);
             res.send( result )
         })

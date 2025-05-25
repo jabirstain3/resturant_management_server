@@ -29,7 +29,15 @@ async function run() {
 
         // All products
         app.get('/items', async ( req, res ) =>{
-            const products = productCollection.find().limit(6);
+            const products = productCollection.find();
+            const result = await products.toArray();
+            // console.log(result);
+            res.send( result )
+        })
+
+        // Top products
+        app.get("/items/bestseller", async (req, res) =>{
+            const products = productCollection.aggregate([{ $sort : { sold : -1 }}, { $limit: 6 }])
             const result = await products.toArray();
             // console.log(result);
             res.send( result )

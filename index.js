@@ -27,13 +27,30 @@ async function run() {
         const database = client.db( 'resturant_management' );
         const productCollection = database.collection( 'items' );
 
-        // All product
+        // All products
         app.get('/items', async ( req, res ) =>{
             const products = productCollection.find().limit(6);
             const result = await products.toArray();
             // console.log(result);
             res.send( result )
         })
+
+        // Create product
+        app.post('/items', async ( req, res ) =>{
+            const newProduct = req.body;
+            const result = await productCollection.insertOne(newProduct)
+            // console.log(result);
+            res.send( result )
+        })
+
+        // Product by Id
+        app.get('/items/:id', async ( req, res ) =>{
+            const id = req.params.id;
+            const result = await productCollection.findOne({ _id: new ObjectId(id) });
+            // console.log(result);
+            res.send( result )
+        })
+
 
         // Send a ping to confirm a successful connection
         // await client.db( "admin" ).command({ ping: 1 });

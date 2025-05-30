@@ -1,6 +1,7 @@
 require( 'dotenv' ).config()
 const express = require('express');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require( 'mongodb' );
 
 const app = express()
@@ -26,6 +27,15 @@ async function run() {
 
         const database = client.db( 'resturant_management' );
         const productCollection = database.collection( 'items' );
+        const orderCollection = database.collection( 'orders' );
+
+        app.post('/jwt', async ( req, res ) => {
+            const user =req.body;
+            const accessToken = jwt.sign(user, "sekhjlhfs521554fgohsdfjhdfyhf2598wihfbygvgfliYgksvHVKkjhdnvyrDHdghdFbcrate", {expiresIn: '1h'});
+            res.send(accessToken);
+        })
+
+
 
         // All products
         app.get('/items', async ( req, res ) =>{
@@ -37,7 +47,10 @@ async function run() {
 
         // Top products
         app.get("/items/bestseller", async (req, res) =>{
-            const products = productCollection.aggregate([{ $sort : { sold : -1 }}, { $limit: 6 }])
+            const products = productCollection.aggregate([
+                { $sort : { sold : -1 }}, 
+                { $limit: 6 }
+            ])
             const result = await products.toArray();
             // console.log(result);
             res.send( result )
@@ -59,6 +72,17 @@ async function run() {
             res.send( result )
         })
 
+        // Update an item
+        app.patch('/items/:id', async (req, res) => {
+            const id = req.params.id;
+            const updateData = req.body;
+            const result = await productCollection.updateOne(
+                { _id: new ObjectId(id) },
+                { $set: updateData }
+            );
+            res.send(result);
+        });
+
         // Delete an item
         app.delete('/Items/:id', async ( req, res ) =>{
             const id = req.params.id;
@@ -71,6 +95,16 @@ async function run() {
         app.get('/:email/items', async ( req, res ) =>{
             const email = req.params.email;
             const result = await productCollection.find({ usersEmail: email }).toArray();
+            // console.log(result);
+            res.send( result )
+        })
+
+
+
+        // create order
+        app.post('/orders', async ( req, res ) =>{
+            const newOrder = req.body;
+            const result = await orderCollection.insertOne(newOrder)
             // console.log(result);
             res.send( result )
         })

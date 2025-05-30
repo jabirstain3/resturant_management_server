@@ -99,8 +99,9 @@ async function run() {
             res.send( result )
         })
 
-
-
+        
+        
+        
         // create order
         app.post('/orders', async ( req, res ) =>{
             const newOrder = req.body;
@@ -108,6 +109,15 @@ async function run() {
             // console.log(result);
             res.send( result )
         })
+        
+        // order by a user
+        app.get('/:email/orders', async ( req, res ) =>{
+            const email = req.params.email;
+            const result = await orderCollection.find({ buyersEmail: email }).toArray();
+            // console.log(result);
+            res.send( result )
+        })
+
 
         // Send a ping to confirm a successful connection
         // await client.db( "admin" ).command({ ping: 1 });

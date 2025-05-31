@@ -32,10 +32,12 @@ async function run() {
         app.post('/jwt', async ( req, res ) => {
             const user =req.body;
             const accessToken = jwt.sign(user, "sekhjlhfs521554fgohsdfjhdfyhf2598wihfbygvgfliYgksvHVKkjhdnvyrDHdghdFbcrate", {expiresIn: '1h'});
-            res.send(accessToken);
+            res.cookie('myTicket', accessToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                })
+                .send({ success: true});
         })
-
-
 
         // All products
         app.get('/items', async ( req, res ) =>{
@@ -84,7 +86,7 @@ async function run() {
         });
 
         // Delete an item
-        app.delete('/Items/:id', async ( req, res ) =>{
+        app.delete('/items/:id', async ( req, res ) =>{
             const id = req.params.id;
             const result = await productCollection.deleteOne({ _id: new ObjectId(id) });
             // console.log(result);
@@ -100,8 +102,6 @@ async function run() {
         })
 
         
-        
-        
         // create order
         app.post('/orders', async ( req, res ) =>{
             const newOrder = req.body;
@@ -114,6 +114,13 @@ async function run() {
         app.get('/:email/orders', async ( req, res ) =>{
             const email = req.params.email;
             const result = await orderCollection.find({ buyersEmail: email }).toArray();
+            // console.log(result);
+            res.send( result )
+        })
+
+        app.delete('/orders/:id', async ( req, res ) =>{
+            const id = req.params.id;
+            const result = await orderCollection.deleteOne({ _id: new ObjectId(id) });
             // console.log(result);
             res.send( result )
         })
